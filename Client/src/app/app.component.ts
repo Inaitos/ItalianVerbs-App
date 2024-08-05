@@ -8,11 +8,13 @@ import {InputTextModule} from "primeng/inputtext";
 import {FormsModule} from "@angular/forms";
 import {MenubarModule} from "primeng/menubar";
 import {MenuItem} from "primeng/api";
+import {SelectButtonModule} from "primeng/selectbutton";
+import {CommonModule} from "@angular/common";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, ButtonDirective, Button, MenuModule, InputGroupModule, InputGroupAddonModule, InputTextModule, FormsModule, MenubarModule],
+  imports: [CommonModule, RouterOutlet, ButtonDirective, Button, MenuModule, InputGroupModule, InputGroupAddonModule, InputTextModule, FormsModule, MenubarModule, SelectButtonModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -24,9 +26,14 @@ export class AppComponent {
       label: "Conjugation",
       items: [
         {
-          label: 'Top 100',
+          label: 'Next'
         }
       ]
     }
+  ];
+  protected wordsSelection = [
+    { label: 'Top 100', value: '100' },
+    { label: 'Top 1000', value: '1000' },
+    { label: 'All available', value: 'all' }
   ];
 }

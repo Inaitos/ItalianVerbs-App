@@ -1,6 +1,8 @@
-<div class="top-menu flex">
-  <p-menubar [model]="menuItems"></p-menubar>
-  <div style="width:300px" class="ml-auto m-2">
+<p-menu #learnMenu [model]="menuItems" [popup]="true" class="m-0 p-0"></p-menu>
+<div class="top-menu flex align-items-center">
+  <p-button label="Learn" (click)="learnMenu.toggle($event)"></p-button>
+  <p-selectButton [options]="wordsSelection" class="ml-auto m-2"></p-selectButton>
+  <div style="width:300px" class="m-2">
     <p-inputGroup>
       <p-inputGroupAddon><i class="pi pi-search"></i>
       </p-inputGroupAddon>
