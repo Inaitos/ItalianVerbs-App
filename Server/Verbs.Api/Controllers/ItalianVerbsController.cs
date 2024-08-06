@@ -21,9 +21,41 @@ public class ItalianVerbsController : ControllerBase
             .Where(d=> d.Conjugations != null)
             .ToArray();
     }
-    
+
     [HttpGet]
-    public DtoWord[] Get()
+    public string[] Get()
+    {
+        return _definitions.Select(l => l.Word).ToArray();
+    }
+
+    [HttpGet("words/{word}")]
+    public Definition GetWord(string word)
+    {
+        var ret = _definitions.First(l=> l.Word == word);
+        return ret;
+    }
+
+    [HttpGet("words/{word}/conjugation")]
+    public Conjugation[] GetConj(string word)
+    {
+        return _definitions.First(l => l.Word == word).Conjugations;
+    }
+
+    [HttpGet("words/{word}/definition")]
+    public string[] GetDef(string word)
+    {
+        return _definitions.First(l => l.Word == word).Definitions;
+    }
+
+    [HttpGet("words/{word}/url")]
+    public string GetUrl(string word)
+    {
+        return _definitions.First(l => l.Word == word).Url;
+    }
+    
+    
+    [HttpGet("getAll")]
+    public DtoWord[] GetAll()
     {
         
         
