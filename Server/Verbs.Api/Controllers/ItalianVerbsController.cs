@@ -10,6 +10,7 @@ namespace Verbs.Api.Controllers;
 public class ItalianVerbsController : ControllerBase
 {
     private Definition[] _definitions;
+    private Dictionary<string, Definition> _dictionary;
     
     public ItalianVerbsController()
     {
@@ -19,7 +20,10 @@ public class ItalianVerbsController : ControllerBase
             .Where(System.IO.File.Exists)
             .Select(fileName => ReadFromFile(fileName))
             .Where(d=> d.Conjugations != null)
+            .DistinctBy(d=> d.Word)
             .ToArray();
+
+        _dictionary = _definitions.ToDictionary(r=> r.Word, r=> r);
     }
 
     [HttpGet]
@@ -29,28 +33,31 @@ public class ItalianVerbsController : ControllerBase
     }
 
     [HttpGet("words/{word}")]
-    public Definition GetWord(string word)
+    public ActionResult<Definition> GetWord(string word)
     {
-        var ret = _definitions.First(l=> l.Word == word);
-        return ret;
+        word = word.ToLower();
+        return _dictionary[word] == null? NotFound(): _dictionary[word];
     }
 
     [HttpGet("words/{word}/conjugation")]
-    public Conjugation[] GetConj(string word)
+    public ActionResult<Conjugation[]> GetConj(string word)
     {
-        return _definitions.First(l => l.Word == word).Conjugations;
+        word = word.ToLower();
+        return _dictionary[word] == null? NotFound(): _dictionary[word].Conjugations.Where(r => r.Group == "indicative/present").ToArray();
     }
 
     [HttpGet("words/{word}/definition")]
-    public string[] GetDef(string word)
+    public ActionResult<string[]> GetDef(string word)
     {
-        return _definitions.First(l => l.Word == word).Definitions;
+        word = word.ToLower();
+        return _dictionary[word] == null? NotFound(): _dictionary[word].Definitions;
     }
 
     [HttpGet("words/{word}/url")]
-    public string GetUrl(string word)
+    public ActionResult<string> GetUrl(string word)
     {
-        return _definitions.First(l => l.Word == word).Url;
+        word = word.ToLower();
+        return _dictionary[word] == null? NotFound(): _dictionary[word].Url;
     }
     
     
