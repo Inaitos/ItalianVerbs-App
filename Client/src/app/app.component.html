@@ -1,12 +1,20 @@
 <p-menu #learnMenu [model]="menuItems" [popup]="true" class="m-0 p-0"></p-menu>
 <div class="top-menu flex align-items-center">
   <p-button label="Learn" (click)="learnMenu.toggle($event)"></p-button>
-  <p-selectButton [options]="wordsSelection" class="ml-auto m-2"></p-selectButton>
+  <p-selectButton [options]="wordsSelectionOptions" [(ngModel)]="wordsSelection" class="ml-auto m-2"></p-selectButton>
   <div style="width:300px" class="m-2">
     <p-inputGroup>
-      <p-inputGroupAddon><i class="pi pi-search"></i>
-      </p-inputGroupAddon>
-      <input pInputText placeholder="Search: andare" [(ngModel)]="searchWord">
+      <p-inputGroupAddon><i class="pi pi-search"></i></p-inputGroupAddon>
+      <input #searchInput pInputText placeholder="Search: andare" [(ngModel)]="searchWord" (ngModelChange)="onSearchTextChanged(searchWordPanel, searchInput)">
+      <p-overlayPanel #searchWordPanel [focusOnShow]="false">
+        <div style="max-height: 300px; width: 200px; scroll-behavior: auto">
+          <table>
+            <tr *ngFor="let w of searchWords()">
+              <td><a href="{{w.url}}" target="_blank">{{w.word}}</a></td>
+            </tr>
+          </table>
+        </div>
+      </p-overlayPanel>
     </p-inputGroup>
   </div>
 </div>
