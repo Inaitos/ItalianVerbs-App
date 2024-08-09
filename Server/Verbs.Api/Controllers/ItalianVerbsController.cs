@@ -43,7 +43,11 @@ public class ItalianVerbsController : ControllerBase
     public ActionResult<Conjugation[]> GetConj(string word)
     {
         word = word.ToLower();
-        return _dictionary[word] == null? NotFound(): _dictionary[word].Conjugations.Where(r => r.Group == "indicative/present").ToArray();
+        var tmp = _dictionary[word] != null? _dictionary[word]: null;
+        return _dictionary[word] == null? NotFound(): _dictionary[word]
+                                                        .Conjugations
+                                                        .Where(r => r.Group == "indicative/present")
+                                                        .ToArray();
     }
 
     [HttpGet("words/{word}/definition")]
