@@ -12,21 +12,23 @@ import {SelectButtonModule} from "primeng/selectbutton";
 import {CommonModule} from "@angular/common";
 import {AutoCompleteModule} from "primeng/autocomplete";
 import {OverlayPanel, OverlayPanelModule} from "primeng/overlaypanel";
-import {Word} from "./model/word";
 import {toObservable, toSignal} from "@angular/core/rxjs-interop";
-import {debounceTime, switchMap} from "rxjs";
+import {debounceTime, switchMap, tap} from "rxjs";
 import {VerbsApi} from "./api/verbs-api";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, ButtonDirective, Button, MenuModule, InputGroupModule, InputGroupAddonModule, InputTextModule, FormsModule, MenubarModule, SelectButtonModule, AutoCompleteModule, OverlayPanelModule],
+  imports: [
+    CommonModule, RouterOutlet, ButtonDirective, Button, MenuModule, InputGroupModule, InputGroupAddonModule, InputTextModule, FormsModule, MenubarModule, SelectButtonModule, AutoCompleteModule, OverlayPanelModule,
+
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
   protected searchWord = signal('');
-  protected searchWords: Signal<Word[] | undefined>;
+  protected searchWords: Signal<string[] | undefined>;
 
   protected menuItems: MenuItem[] = [
     {
@@ -50,7 +52,9 @@ export class AppComponent {
     const searchWords$= toObservable(this.searchWord)
       .pipe(
         debounceTime(1000),
-        switchMap(s => api.getWords(s))
+        tap(s => console.log('init search', s)),
+        switchMap(s => api.getWordsFromApi(s)),
+        tap(r => console.log('search result', r)),
       );
     this.searchWords = toSignal(searchWords$);
   }

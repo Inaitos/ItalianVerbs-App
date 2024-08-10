@@ -7,10 +7,10 @@
       <p-inputGroupAddon><i class="pi pi-search"></i></p-inputGroupAddon>
       <input #searchInput pInputText placeholder="Search: andare" [(ngModel)]="searchWord" (ngModelChange)="onSearchTextChanged(searchWordPanel, searchInput)">
       <p-overlayPanel #searchWordPanel [focusOnShow]="false">
-        <div style="max-height: 300px; width: 200px; scroll-behavior: auto">
+        <div style="max-height: 300px; width: 200px; overflow-y: auto;">
           <table>
             <tr *ngFor="let w of searchWords()">
-              <td><a href="{{w.url}}" target="_blank">{{w.word}}</a></td>
+              <td><a href="http://www.google.de?q=${{w}}" target="_blank">{{w}}</a></td>
             </tr>
           </table>
         </div>
