@@ -9,52 +9,41 @@ namespace Verbs.Api.Controllers;
 
 public class ItalianVerbsController : ControllerBase
 {
-    private Definition[] _definitions;
-    private Dictionary<string, Definition> _dictionary;
+    private readonly IVerbsRepository _repository;
     
-    public ItalianVerbsController()
+    
+    public ItalianVerbsController(IVerbsRepository repository)
     {
-        _definitions = System.IO.File
-            .ReadLines(Path.Combine("data", "italian-verbs.csv"))
-            .Select(l=> $@".\data\content\{l.First()}\{l}.json")
-            .Where(System.IO.File.Exists)
-            .Select(fileName => ReadFromFile(fileName))
-            .Where(d=> d.Conjugations != null)
-            .DistinctBy(d=> d.Word)
-            .ToArray();
-
-        _dictionary = _definitions.ToDictionary(r=> r.Word, r=> r);
+        _repository = repository;
     }
 
     [HttpGet]
     public string[] Get()
     {
-        return _definitions.Select(l => l.Word).ToArray();
+        return _repository.GetWords();
     }
 
-    [HttpGet("words/{word}")]
+    [HttpGet("words/{word}", Name = "GetWord")]
     public ActionResult<Definition> GetWord(string word)
     {
-        word = word.ToLower();
-        return _dictionary[word] == null? NotFound(): _dictionary[word];
+        //return _dictionary.TryGetValue(word, out var value) == false? NotFound(): value;
+        return _repository.WordExists(word) == false ? NotFound() : _repository.GetValue(word);
     }
 
     [HttpGet("words/{word}/conjugation")]
-    public ActionResult<Conjugation[]> GetConj(string word)
+    public ActionResult<Conjugation[]> GetConj(string word, [FromQuery]string group)
     {
-        word = word.ToLower();
-        var tmp = _dictionary[word] != null? _dictionary[word]: null;
-        return _dictionary[word] == null? NotFound(): _dictionary[word]
+        return _repository.WordExists(word) == false ? NotFound() :_repository.GetConjugation(word, group);
+        /*return _dictionary[word] == null? NotFound(): _dictionary[word]
                                                         .Conjugations
-                                                        .Where(r => r.Group == "indicative/present")
-                                                        .ToArray();
+                                                        .Where(r => r.Group == (group ?? "indicative/present"))
+                                                        .ToArray();*/
     }
 
     [HttpGet("words/{word}/definition")]
     public ActionResult<string[]> GetDef(string word)
     {
-        word = word.ToLower();
-        return _dictionary[word] == null? NotFound(): _dictionary[word].Definitions;
+        //return _dictionary[word] == null? NotFound(): _dictionary[word].Definitions;
     }
 
     [HttpGet("words/{word}/url")]
@@ -87,10 +76,5 @@ public class ItalianVerbsController : ControllerBase
         return new DtoWord(def.Word, i + 1){Conjugations = cDct};
     }
 
-    private Definition ReadFromFile(string fileName)
-    {
-        var fileData = System.IO.File.ReadAllText(fileName);
-        var p = JsonConvert.DeserializeObject<Definition>(fileData);
-        return p;
-    }
+    
 }
