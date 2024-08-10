@@ -6,4 +6,5 @@ public interface IVerbsRepository
     bool WordExists(string word);
     Definition GetValue(string word);
     Conjugation[] GetConjugation(string word, string group);
+    Definition[] GetDefinition(string word);
 }
