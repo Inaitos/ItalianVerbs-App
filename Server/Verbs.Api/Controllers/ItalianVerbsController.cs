@@ -30,7 +30,13 @@ public class ItalianVerbsController : ControllerBase
         return _repository.WordExists(word) == false ? NotFound() : _repository.GetValue(word);
     }
 
-    [HttpGet("words/{word}/conjugation")]
+    [HttpGet("words/search", Name = "getSearch")]
+    public ActionResult<string[]> GetSearch([FromQuery] string word)
+    {
+        return word == null ? NotFound() : _repository.GetSearch(word);
+    }
+
+    [HttpGet("words/{word}/conjugation", Name = "GetConj")]
     public ActionResult<Conjugation[]> GetConj(string word, [FromQuery]string group)
     {
         return _repository.WordExists(word) == false ? NotFound() :_repository.GetConjugation(word, group);
@@ -40,26 +46,27 @@ public class ItalianVerbsController : ControllerBase
                                                         .ToArray();*/
     }
 
-    [HttpGet("words/{word}/definition")]
+    [HttpGet("words/{word}/definition", Name = "GetDef")]
     public ActionResult<string[]> GetDef(string word)
     {
         //return _dictionary[word] == null? NotFound(): _dictionary[word].Definitions;
+        return _repository.WordExists(word) == false? NotFound() : _repository.GetDefinition(word);
     }
 
-    [HttpGet("words/{word}/url")]
+    [HttpGet("words/{word}/url", Name = "GetUrl")]
     public ActionResult<string> GetUrl(string word)
     {
-        word = word.ToLower();
-        return _dictionary[word] == null? NotFound(): _dictionary[word].Url;
+        //return _dictionary[word] == null? NotFound(): _dictionary[word].Url;
+        return _repository.WordExists(word) == false ? NotFound() : _repository.GetUrl(word);
     }
     
     
-    [HttpGet("getAll")]
+    [HttpGet("getAll", Name = "GetAll")]
     public DtoWord[] GetAll()
     {
         
         
-        var dtow = _definitions
+        var dtow = _repository.GetAll()
             .Select(NewWord)
             .ToArray();
         return dtow;

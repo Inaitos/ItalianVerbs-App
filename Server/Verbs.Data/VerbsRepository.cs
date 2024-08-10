@@ -43,11 +43,34 @@ public class VerbsRepository : IVerbsRepository
         return _dictionary[word];
     }
 
+    public string[] GetSearch(string word)
+    {
+        return _dictionary
+                .Keys
+                .Where(l=> l.Contains(word))
+                .ToArray();
+    }
+
     public Conjugation[] GetConjugation(string word, string group)
     {
         return _dictionary[word]
                 .Conjugations
                 .Where(l=> l.Group == (group ?? "indicative/present"))
                 .ToArray();
+    }
+
+    public string[] GetDefinition(string word)
+    {
+        return _dictionary[word].Definitions;
+    }
+
+    public string GetUrl(string word)
+    {
+        return _dictionary[word].Url;
+    }
+
+    public Definition[] GetAll()
+    {
+        return _definitions;
     }
 }
