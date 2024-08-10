@@ -15,14 +15,18 @@ import {OverlayPanel, OverlayPanelModule} from "primeng/overlaypanel";
 import {toObservable, toSignal} from "@angular/core/rxjs-interop";
 import {debounceTime, switchMap, tap} from "rxjs";
 import {VerbsApi} from "./api/verbs-api";
+import {DialogModule} from "primeng/dialog";
+import {DialogService} from "primeng/dynamicdialog";
+import {WordinfodialogComponent} from "./wordinfodialog/wordinfodialog.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
     CommonModule, RouterOutlet, ButtonDirective, Button, MenuModule, InputGroupModule, InputGroupAddonModule, InputTextModule, FormsModule, MenubarModule, SelectButtonModule, AutoCompleteModule, OverlayPanelModule,
-
+    DialogModule
   ],
+  providers: [DialogService],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -48,7 +52,10 @@ export class AppComponent {
 
   protected wordsSelection: string = '100';
 
-  constructor(api: VerbsApi) {
+  constructor(
+    private api: VerbsApi,
+    private dialogService: DialogService
+  ) {
     const searchWords$= toObservable(this.searchWord)
       .pipe(
         debounceTime(1000),
@@ -63,6 +70,21 @@ export class AppComponent {
     if (!searchWordPanel.overlayVisible && !!this.searchWord || searchWordPanel.overlayVisible && !this.searchWord) {
       searchWordPanel.toggle(null, searchInput);
     }
+  }
 
+  openWordInfoDialog(w: string) {
+    this.api.getWordInfo(w)
+      .pipe(
+        switchMap(
+        wordDef => {
+          const ref = this.dialogService.open(WordinfodialogComponent,{
+            data: {
+              WordDefinition: wordDef
+            }
+          });
+          return ref.onClose;
+        })
+      )
+      .subscribe(_ => {});
   }
 }

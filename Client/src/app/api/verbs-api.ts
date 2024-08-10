@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 import {Observable, of} from "rxjs";
-import {ItalianVerbsService} from "./verbs";
+import {Definition, ItalianVerbsService} from "./verbs";
 
 @Injectable({
   providedIn: 'root'
@@ -11,5 +11,9 @@ export class VerbsApi {
   }
   getWordsFromApi(search: string): Observable<string[]> {
     return this.api.apiItalianVerbsGet(search);
+  }
+
+  getWordInfo(word: string): Observable<Definition> {
+    return this.api.apiItalianVerbsWordsWordGet(word);
   }
 }
