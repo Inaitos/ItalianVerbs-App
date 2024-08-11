@@ -11,9 +11,9 @@
  */
 
 
-export interface DtoWord { 
-    word?: string | null;
-    rank?: number;
-    conjugations?: { [key: string]: string | null; } | null;
+export interface DtoConjugation { 
+    form?: string | null;
+    shortValue?: string | null;
+    longValue?: string | null;
 }
 

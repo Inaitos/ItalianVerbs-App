@@ -1,19 +1,20 @@
 ﻿using Newtonsoft.Json;
+// ReSharper disable InconsistentNaming
 
 namespace Verbs.Data;
 
 public class VerbsRepository : IVerbsRepository
 {
-    private Definition[] _definitions;
-    private Dictionary<string, Definition> _dictionary;
+    private readonly Definition[] _definitions;
+    private readonly Dictionary<string, Definition> _dictionary;
 
     public VerbsRepository()
     {
-        _definitions = System.IO.File
+        _definitions = File
             .ReadLines(Path.Combine("data", "italian-verbs.csv"))
             .Select(l=> Path.Combine("data", "content", $"{l.First()}", $"{l}.json")) 
-            .Where(System.IO.File.Exists)
-            .Select(fileName => ReadFromFile(fileName))
+            .Where(File.Exists)
+            .Select(ReadFromFile)
             .Where(d=> d.Conjugations != null)
             .DistinctBy(d=> d.Word)
             .ToArray();
@@ -24,7 +25,7 @@ public class VerbsRepository : IVerbsRepository
     
     private Definition ReadFromFile(string fileName)
     {
-        var fileData = System.IO.File.ReadAllText(fileName);
+        var fileData = File.ReadAllText(fileName);
         var p = JsonConvert.DeserializeObject<Definition>(fileData);
         return p;
     }
@@ -36,28 +37,9 @@ public class VerbsRepository : IVerbsRepository
     }
 
     
-    public bool WordExists(string word)
-    {
-        return _dictionary.ContainsKey(word);
-    }
-
-    
-    public Definition GetValue(string word)
-    {
-        return _dictionary[word];
-    }
-
     public bool TryGetWordDef(string word, out Definition def)
     {
         return _dictionary.TryGetValue(word, out def);
-    }
-
-    public Conjugation[] GetConjugation(string word, string group)
-    {
-        return _dictionary[word]
-                .Conjugations
-                .Where(l=> l.Group == (group ?? "indicative/present"))
-                .ToArray();
     }
 
     public bool TryGetConjugation(string word, string group, out Conjugation[] con)
@@ -77,22 +59,5 @@ public class VerbsRepository : IVerbsRepository
 
         con = conjugations;
         return true;
-    }
-    
-    public string[] GetDefinition(string word)
-    {
-        return _dictionary[word].Definitions;
-    }
-
-    
-    public string GetUrl(string word)
-    {
-        return _dictionary[word].Url;
-    }
-
-    
-    public Definition[] GetAll()
-    {
-        return _definitions;
     }
 }
