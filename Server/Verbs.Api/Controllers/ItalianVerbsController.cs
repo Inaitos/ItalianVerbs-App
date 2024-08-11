@@ -9,72 +9,69 @@ namespace Verbs.Api.Controllers;
 
 public class ItalianVerbsController : ControllerBase
 {
-    private Definition[] _definitions;
-    private Dictionary<string, Definition> _dictionary;
+    private readonly IVerbsRepository _repository;
     
-    public ItalianVerbsController()
+    
+    public ItalianVerbsController(IVerbsRepository repository)
     {
-        _definitions = System.IO.File
-            .ReadLines(Path.Combine("data", "italian-verbs.csv"))
-            .Select(l=> $@".\data\content\{l.First()}\{l}.json")
-            .Where(System.IO.File.Exists)
-            .Select(fileName => ReadFromFile(fileName))
-            .Where(d=> d.Conjugations != null)
-            .DistinctBy(d=> d.Word)
-            .ToArray();
-
-        _dictionary = _definitions.ToDictionary(r=> r.Word, r=> r);
+        _repository = repository;
     }
 
-    [HttpGet]
-    public string[] Get()
+    
+    [HttpGet(Name = "GetWords")]
+    public string[] Get([FromQuery] string word)
     {
-        return _definitions.Select(l => l.Word).ToArray();
+        IEnumerable<string> p = _repository.GetWords();
+        if (!string.IsNullOrWhiteSpace(word))
+        {
+            p = p.Where(l => l.Contains(word));
+        }
+
+        return p.ToArray();
     }
 
-    [HttpGet("words/{word}")]
+    
+    [HttpGet("words/{word}", Name = "GetWord")]
     public ActionResult<Definition> GetWord(string word)
     {
-        word = word.ToLower();
-        return _dictionary[word] == null? NotFound(): _dictionary[word];
+        return !_repository.TryGetWordDef(word, out var def)? NotFound() : def;
     }
-
-    [HttpGet("words/{word}/conjugation")]
-    public ActionResult<Conjugation[]> GetConj(string word)
+    
+    
+    [HttpGet("words/{word}/conjugation", Name = "GetConj")]
+    public ActionResult<DtoConjugation[]> GetConj(string word, [FromQuery]string group)
     {
-        word = word.ToLower();
-        var tmp = _dictionary[word] != null? _dictionary[word]: null;
-        return _dictionary[word] == null? NotFound(): _dictionary[word]
-                                                        .Conjugations
-                                                        .Where(r => r.Group == "indicative/present")
-                                                        .ToArray();
+        if (!_repository.TryGetConjugation(word, group, out var conj))
+        {
+            return NotFound();
+        }
+
+        var ret = conj.Select(l => new DtoConjugation(l.Value)).ToArray();
+        return ret;
     }
 
-    [HttpGet("words/{word}/definition")]
+    
+    [HttpGet("words/{word}/definition", Name = "GetDef")]
     public ActionResult<string[]> GetDef(string word)
     {
-        word = word.ToLower();
-        return _dictionary[word] == null? NotFound(): _dictionary[word].Definitions;
+        return _repository.WordExists(word) == false? NotFound() : _repository.GetDefinition(word);
     }
 
-    [HttpGet("words/{word}/url")]
+    
+    [HttpGet("words/{word}/url", Name = "GetUrl")]
     public ActionResult<string> GetUrl(string word)
     {
-        word = word.ToLower();
-        return _dictionary[word] == null? NotFound(): _dictionary[word].Url;
+        return _repository.WordExists(word) == false ? NotFound() : _repository.GetUrl(word);
     }
     
     
-    [HttpGet("getAll")]
+    [HttpGet("getAll", Name = "GetAll")]
     public DtoWord[] GetAll()
     {
-        
-        
-        var dtow = _definitions
+        var dtow = _repository.GetAll()
             .Select(NewWord)
             .ToArray();
         return dtow;
-
     }
 
     private DtoWord NewWord(Definition def, int i)
@@ -82,15 +79,9 @@ public class ItalianVerbsController : ControllerBase
         var cDct = def
             .Conjugations
             .Where(c => c.Group == "indicative/present")
-            .ToDictionary(c => c.Form, c=> c.Value)
-            ;
+            .ToDictionary(c => c.Form, c => c.Value);
         return new DtoWord(def.Word, i + 1){Conjugations = cDct};
     }
 
-    private Definition ReadFromFile(string fileName)
-    {
-        var fileData = System.IO.File.ReadAllText(fileName);
-        var p = JsonConvert.DeserializeObject<Definition>(fileData);
-        return p;
-    }
+    
 }
