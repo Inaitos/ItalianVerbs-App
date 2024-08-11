@@ -11,7 +11,7 @@ public class VerbsRepository : IVerbsRepository
     {
         _definitions = System.IO.File
             .ReadLines(Path.Combine("data", "italian-verbs.csv"))
-            .Select(l=> $@".\data\content\{l.First()}\{l}.json")
+            .Select(l=> Path.Combine("data", "content", $"{l.First()}", $"{l}.json")) 
             .Where(System.IO.File.Exists)
             .Select(fileName => ReadFromFile(fileName))
             .Where(d=> d.Conjugations != null)
@@ -21,6 +21,7 @@ public class VerbsRepository : IVerbsRepository
         _dictionary = _definitions.ToDictionary(r=> r.Word, r=> r, StringComparer.OrdinalIgnoreCase);
     }
     
+    
     private Definition ReadFromFile(string fileName)
     {
         var fileData = System.IO.File.ReadAllText(fileName);
@@ -28,27 +29,27 @@ public class VerbsRepository : IVerbsRepository
         return p;
     }
 
+    
     public string[] GetWords()
     {
         return _definitions.Select(l => l.Word).ToArray();
     }
 
+    
     public bool WordExists(string word)
     {
-        return _dictionary.TryGetValue(word, out var value);
+        return _dictionary.ContainsKey(word);
     }
 
+    
     public Definition GetValue(string word)
     {
         return _dictionary[word];
     }
 
-    public string[] GetSearch(string word)
+    public bool TryGetWordDef(string word, out Definition def)
     {
-        return _dictionary
-                .Keys
-                .Where(l=> l.Contains(word))
-                .ToArray();
+        return _dictionary.TryGetValue(word, out def);
     }
 
     public Conjugation[] GetConjugation(string word, string group)
@@ -59,16 +60,37 @@ public class VerbsRepository : IVerbsRepository
                 .ToArray();
     }
 
+    public bool TryGetConjugation(string word, string group, out Conjugation[] con)
+    {
+        if (!_dictionary.TryGetValue(word, out var def))
+        {
+            con = default;
+            return false;
+        }
+
+        var conjugations = def.Conjugations.Where(l=> l.Group == (group ?? "indicative/present")).ToArray();
+        if (conjugations.Length == 0)
+        {
+            con = default;
+            return false;
+        }
+
+        con = conjugations;
+        return true;
+    }
+    
     public string[] GetDefinition(string word)
     {
         return _dictionary[word].Definitions;
     }
 
+    
     public string GetUrl(string word)
     {
         return _dictionary[word].Url;
     }
 
+    
     public Definition[] GetAll()
     {
         return _definitions;
