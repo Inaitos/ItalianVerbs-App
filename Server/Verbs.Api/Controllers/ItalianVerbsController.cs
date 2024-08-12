@@ -49,7 +49,30 @@ public class ItalianVerbsController : ControllerBase
         var ret = conj.Select(l => new DtoConjugation(l.Value)).ToArray();
         return ret;
     }
+
     
+    [HttpGet("words/{word}/definition", Name = "GetDef")]
+    public ActionResult<string[]> GetDef(string word)
+    {
+        return _repository.WordExists(word) == false? NotFound() : _repository.GetDefinition(word);
+    }
+
+    
+    [HttpGet("words/{word}/url", Name = "GetUrl")]
+    public ActionResult<string> GetUrl(string word)
+    {
+        return _repository.WordExists(word) == false ? NotFound() : _repository.GetUrl(word);
+    }
+    
+    
+    [HttpGet("getAll", Name = "GetAll")]
+    public DtoWord[] GetAll()
+    {
+        var dtow = _repository.GetAll()
+            .Select(NewWord)
+            .ToArray();
+        return dtow;
+    }
 
     private DtoWord NewWord(Definition def, int i)
     {

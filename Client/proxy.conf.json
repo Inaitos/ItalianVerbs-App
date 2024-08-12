@@ -1,0 +1,10 @@
+{
+  "/api": {
+    "target": "http://localhost:5124",
+    "secure": false
+  },
+  "/callback": {
+    "target": "http://localhost:5124",
+    "secure": false
+  }
+}

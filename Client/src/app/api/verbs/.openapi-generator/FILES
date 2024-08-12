@@ -1,0 +1,15 @@
+.gitignore
+README.md
+api.module.ts
+api/api.ts
+api/italianVerbs.service.ts
+configuration.ts
+encoder.ts
+git_push.sh
+index.ts
+model/conjugation.ts
+model/definition.ts
+model/dtoConjugation.ts
+model/models.ts
+param.ts
+variables.ts

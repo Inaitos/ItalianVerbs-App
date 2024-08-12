@@ -1,5 +1,5 @@
 ﻿namespace Verbs.Data;
-using Newtonsoft.Json;
+
 public class DtoWord
 {
     public string Word { get; set; }

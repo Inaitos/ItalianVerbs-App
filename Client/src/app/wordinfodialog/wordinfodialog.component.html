@@ -1,0 +1,21 @@
+@for(translationHtml of TranslationHtmls; track translationHtml) {
+  <p-card styleClass="mb-2">
+    <div [innerHTML]="translationHtml"></div>
+  </p-card>
+}
+<table>
+  <thead>
+    <th>Person</th>
+    <th>Singular</th>
+    <th>Plural</th>
+  </thead>
+  <tr>
+    <td>1</td><td>Io {{Conj(1, 1)}}</td><td>Noi {{Conj(1, 99)}}</td>
+  </tr>
+  <tr>
+    <td>2</td><td>Tu {{Conj(2, 1)}}</td><td>Voi {{Conj(2, 99)}}</td>
+  </tr>
+  <tr>
+    <td>3</td><td>Lui/Lei {{Conj(3, 1)}}</td><td>Loro {{Conj(3, 99)}}</td>
+  </tr>
+</table>
