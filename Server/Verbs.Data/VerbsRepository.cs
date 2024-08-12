@@ -78,21 +78,4 @@ public class VerbsRepository : IVerbsRepository
         con = conjugations;
         return true;
     }
-    
-    public string[] GetDefinition(string word)
-    {
-        return _dictionary[word].Definitions;
-    }
-
-    
-    public string GetUrl(string word)
-    {
-        return _dictionary[word].Url;
-    }
-
-    
-    public Definition[] GetAll()
-    {
-        return _definitions;
-    }
 }
