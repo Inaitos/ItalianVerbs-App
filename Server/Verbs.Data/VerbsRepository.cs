@@ -60,4 +60,16 @@ public class VerbsRepository : IVerbsRepository
         con = conjugations;
         return true;
     }
+
+    public string[] GetRand(int top, int count)
+    {
+        var rand = new Random();
+        var values = _definitions
+            .Take(top)
+            .OrderBy(x => rand.Next())  
+            .Take(count)
+            .Select(l=> l.Word)
+            .ToArray();
+        return values;
+    }
 }
