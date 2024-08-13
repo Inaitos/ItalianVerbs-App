@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {Observable} from "rxjs";
+import {Observable, shareReplay} from "rxjs";
 import {Definition, DtoConjugation, ItalianVerbsService} from "./verbs";
 
 @Injectable({
@@ -19,5 +19,13 @@ export class VerbsApi {
 
   getWordConjugations(word: string, group: string): Observable<DtoConjugation[]> {
     return this.api.getConj(word, group);
+  }
+
+  getWordsBatch(topCount: number, batchSize: number): Observable<string[]>{
+    return this.api.getRandom(topCount, batchSize).pipe(shareReplay());
+  }
+
+  getWordsCount(): Observable<number>{
+    return this.api.getLength();
   }
 }

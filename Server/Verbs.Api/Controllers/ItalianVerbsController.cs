@@ -51,7 +51,7 @@ public class ItalianVerbsController : ControllerBase
     }
 
 
-    [HttpGet("/random/{top}/{count}", Name = "GetRandom")]
+    [HttpGet("random/{top}/{count}", Name = "GetRandom")]
 
     public string[] GetRandom(int top, int count)
     {
@@ -60,7 +60,7 @@ public class ItalianVerbsController : ControllerBase
     }
 
 
-    [HttpGet("/words/length", Name = "GetLength")]
+    [HttpGet("words/length", Name = "GetLength")]
     public int GetLength()
     {
         return _repository.GetLength();

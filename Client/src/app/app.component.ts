@@ -13,7 +13,7 @@ import {CommonModule} from "@angular/common";
 import {AutoCompleteModule} from "primeng/autocomplete";
 import {OverlayPanel, OverlayPanelModule} from "primeng/overlaypanel";
 import {toObservable, toSignal} from "@angular/core/rxjs-interop";
-import {debounceTime, forkJoin, map, Observable, switchMap, tap} from "rxjs";
+import {debounceTime, forkJoin, map, Observable, of, switchMap, tap} from "rxjs";
 import {VerbsApi} from "./api/verbs-api";
 import {DialogModule} from "primeng/dialog";
 import {DialogService} from "primeng/dynamicdialog";
@@ -22,7 +22,7 @@ import {WordInfoDialogInitData} from "./wordinfodialog/wordinfodialogdata";
 import {DtoConjugation} from "./api/verbs";
 import {Store} from "@ngrx/store";
 import {selectTopCount} from "./state/app.state.selectors";
-import {Actions} from "./state/app.state.actions";
+import {AppActions} from "./state/app.state.actions";
 
 @Component({
   selector: 'app-root',
@@ -53,7 +53,7 @@ export class AppComponent {
   protected wordsSelectionOptions = [
     { label: 'Top 100', value: 100 },
     { label: 'Top 1000', value: 1000 },
-    { label: 'All (12436)', value: -1 }
+    { label: 'All', value: -1 }
   ];
 
   protected topCount = signal(100);
@@ -67,13 +67,20 @@ export class AppComponent {
       .pipe(
         debounceTime(1000),
         tap(s => console.log('init search', s)),
-        switchMap(s => api.getWordsFromApi(s)),
+        switchMap(s => !!s ? api.getWordsFromApi(s) : of([])),
         tap(r => console.log('search result', r)),
       );
     this.searchWords = toSignal(searchWords$);
     store.select(selectTopCount).subscribe(v => {
       this.topCount.set(v);
     });
+    this.api.getWordsCount().subscribe(num => {
+      this.wordsSelectionOptions = [
+        { label: 'Top 100', value: 100 },
+        { label: 'Top 1000', value: 1000 },
+        { label: `All (${num})`, value: -1 }
+      ];
+    })
   }
 
   onSearchTextChanged(searchWordPanel: OverlayPanel, searchInput: HTMLInputElement) {
@@ -110,6 +117,10 @@ export class AppComponent {
   }
 
   setTopCount(topCount: number) {
-    this.store.dispatch(Actions.setTopCount({topCount}));
+    this.store.dispatch(AppActions.setTopCount({topCount}));
+  }
+
+  reloadWords() {
+    this.store.dispatch(AppActions.loadNextBatch());
   }
 }

@@ -7,6 +7,8 @@ import * as ApiVerbs from "./api/verbs";
 import {provideHttpClient} from "@angular/common/http";
 import {provideStore, StoreModule} from '@ngrx/store';
 import {appReducers} from "./state/app.state";
+import { provideEffects } from '@ngrx/effects';
+import {AppStateEffects} from "./state/app.state.effects";
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -15,6 +17,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimations(),
     importProvidersFrom(ApiVerbs.ApiModule.forRoot(() => new ApiVerbs.Configuration({ basePath: '' }))),
     provideHttpClient(),
-    provideStore({ app: appReducers})
+    provideStore({ app: appReducers }),
+    provideEffects(AppStateEffects)
 ]
 };

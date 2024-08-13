@@ -1,1 +1,9 @@
-<p>Top Count: {{topCount$ | async}}</p>
+<div class="flex">
+  <div class="flex-auto"></div>
+  <div class="content-div bg-primary">
+    @for(verb of (verbs$ | async); track verb) {
+      <div>{{verb}}</div>
+    }
+  </div>
+  <div class="flex-auto"></div>
+</div>

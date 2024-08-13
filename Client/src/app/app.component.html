@@ -1,6 +1,7 @@
 <p-menu #learnMenu [model]="menuItems" [popup]="true" class="m-0 p-0"></p-menu>
 <div class="top-menu flex align-items-center">
-  <p-button label="Learn" (click)="learnMenu.toggle($event)"></p-button>
+  <p-button label="Learn" (click)="learnMenu.toggle($event)" class="mr-2"></p-button>
+  <p-button label="Reload words" (click)="reloadWords()" icon="pi pi-sync"></p-button>
   <p-selectButton [options]="wordsSelectionOptions" [(ngModel)]="topCount" class="ml-auto m-2" (ngModelChange)="setTopCount($event)"></p-selectButton>
   <div style="width:300px" class="m-2">
     <p-inputGroup>

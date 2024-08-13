@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Store} from "@ngrx/store";
-import {Observable} from "rxjs";
-import {selectTopCount} from "../../state/app.state.selectors";
+import {map, Observable} from "rxjs";
+import {selectTopCount, selectVerbs} from "../../state/app.state.selectors";
 import {AsyncPipe} from "@angular/common";
+import {AppActions} from "../../state/app.state.actions";
 
 @Component({
   selector: 'app-learn-conjugation',
@@ -13,9 +14,16 @@ import {AsyncPipe} from "@angular/common";
   templateUrl: './learn-conjugation.component.html',
   styleUrl: './learn-conjugation.component.scss'
 })
-export class LearnConjugationComponent {
+export class LearnConjugationComponent implements OnInit {
   protected topCount$: Observable<number>;
+  protected verbs$: Observable<string[]>;
   constructor(private store: Store) {
     this.topCount$ = this.store.select(selectTopCount);
+    this.verbs$ = this.store.select(selectVerbs).pipe(map(a => a ?? []));
+  }
+
+  ngOnInit(): void {
+    this.store.dispatch(AppActions.initIfEmpty());
   }
 }
+

@@ -1,5 +1,5 @@
 import {createReducer, on} from "@ngrx/store";
-import {Actions} from "./app.state.actions"
+import {AppActions} from "./app.state.actions"
 
 export interface AppState {
   verbs?: string[],
@@ -20,7 +20,8 @@ export const initialAppState: AppState = {
 
 export const appReducers = createReducer(
   initialAppState,
-  on(Actions.setBatchSize, (state, {batchSize}) => ({...state, batchSize})),
-  on(Actions.setTopCount, (state, {topCount}) => ({...state, topCount})),
+  on(AppActions.setBatchSize, (state, {batchSize}) => ({...state, batchSize})),
+  on(AppActions.setTopCount, (state, {topCount}) => ({...state, topCount})),
+  on(AppActions.setBatchData, (state, {words}) => ({...state, verbs: words})),
 );
 
