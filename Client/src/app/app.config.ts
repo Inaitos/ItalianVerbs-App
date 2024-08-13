@@ -5,13 +5,16 @@ import { routes } from './app.routes';
 import {provideAnimations} from "@angular/platform-browser/animations";
 import * as ApiVerbs from "./api/verbs";
 import {provideHttpClient} from "@angular/common/http";
+import {provideStore, StoreModule} from '@ngrx/store';
+import {appReducers} from "./state/app.state";
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideAnimations(),
-    importProvidersFrom(ApiVerbs.ApiModule.forRoot(() => new ApiVerbs.Configuration({basePath: ''}))),
-    provideHttpClient()
-  ]
+    importProvidersFrom(ApiVerbs.ApiModule.forRoot(() => new ApiVerbs.Configuration({ basePath: '' }))),
+    provideHttpClient(),
+    provideStore({ app: appReducers})
+]
 };

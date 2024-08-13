@@ -13,21 +13,24 @@ import {CommonModule} from "@angular/common";
 import {AutoCompleteModule} from "primeng/autocomplete";
 import {OverlayPanel, OverlayPanelModule} from "primeng/overlaypanel";
 import {toObservable, toSignal} from "@angular/core/rxjs-interop";
-import {debounceTime, forkJoin, map, Observable, switchMap, tap, zip} from "rxjs";
+import {debounceTime, forkJoin, map, Observable, switchMap, tap} from "rxjs";
 import {VerbsApi} from "./api/verbs-api";
 import {DialogModule} from "primeng/dialog";
 import {DialogService} from "primeng/dynamicdialog";
 import {WordinfodialogComponent} from "./wordinfodialog/wordinfodialog.component";
 import {WordInfoDialogInitData} from "./wordinfodialog/wordinfodialogdata";
 import {DtoConjugation} from "./api/verbs";
+import {Store} from "@ngrx/store";
+import {selectTopCount} from "./state/app.state.selectors";
+import {Actions} from "./state/app.state.actions";
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
     CommonModule, RouterOutlet, ButtonDirective, Button, MenuModule, InputGroupModule, InputGroupAddonModule, InputTextModule, FormsModule, MenubarModule, SelectButtonModule, AutoCompleteModule, OverlayPanelModule,
-    DialogModule
-  ],
+    DialogModule,
+],
   providers: [DialogService],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
@@ -41,22 +44,24 @@ export class AppComponent {
       label: "Conjugation",
       items: [
         {
-          label: 'Next'
+          label: 'Repeat',
+          routerLink: 'learn-conjugation'
         }
       ]
     }
   ];
   protected wordsSelectionOptions = [
-    { label: 'Top 100', value: '100' },
-    { label: 'Top 1000', value: '1000' },
-    { label: 'All (12436)', value: 'all' }
+    { label: 'Top 100', value: 100 },
+    { label: 'Top 1000', value: 1000 },
+    { label: 'All (12436)', value: -1 }
   ];
 
-  protected wordsSelection: string = '100';
+  protected topCount = signal(100);
 
   constructor(
     private api: VerbsApi,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private store: Store
   ) {
     const searchWords$= toObservable(this.searchWord)
       .pipe(
@@ -66,6 +71,9 @@ export class AppComponent {
         tap(r => console.log('search result', r)),
       );
     this.searchWords = toSignal(searchWords$);
+    store.select(selectTopCount).subscribe(v => {
+      this.topCount.set(v);
+    });
   }
 
   onSearchTextChanged(searchWordPanel: OverlayPanel, searchInput: HTMLInputElement) {
@@ -99,5 +107,9 @@ export class AppComponent {
       })
     ).subscribe(_ => {
     });
+  }
+
+  setTopCount(topCount: number) {
+    this.store.dispatch(Actions.setTopCount({topCount}));
   }
 }
