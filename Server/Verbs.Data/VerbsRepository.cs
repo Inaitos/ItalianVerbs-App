@@ -72,4 +72,9 @@ public class VerbsRepository : IVerbsRepository
             .ToArray();
         return values;
     }
+
+    public int GetLength()
+    {
+        return _definitions.Length;
+    }
 }
