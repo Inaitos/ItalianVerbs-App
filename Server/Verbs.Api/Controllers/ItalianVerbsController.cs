@@ -58,6 +58,13 @@ public class ItalianVerbsController : ControllerBase
         var ret = _repository.GetRand(top, count);
         return ret;
     }
+
+
+    [HttpGet("/words/length", Name = "GetLength")]
+    public int GetLength()
+    {
+        return _repository.GetLength();
+    }
     
     
     private DtoWord NewWord(Definition def, int i)
