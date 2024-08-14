@@ -1,8 +1,32 @@
 <div class="flex">
   <div class="flex-auto"></div>
-  <div class="content-div bg-primary">
-    @for(verb of (verbs$ | async); track verb) {
-      <div>{{verb}}</div>
+  <div class="content-div bg-primary p-3">
+    @if(dataReady) {
+      <p-card [header]="currentVerb()">
+        <div>
+          @if (cj() != undefined) {
+            <table class="conj-table">
+              <thead>
+              <th>Form</th>
+              <th>Singular</th>
+              <th>Plural</th>
+              </thead>
+              <tbody>
+              <tr>
+                <td>1st</td><td>Io {{cj()!["s1"]}}</td><td>Noi {{cj()!["p1"]}}</td>
+              </tr>
+              <tr>
+                <td>2nd</td><td>Tu {{cj()!["s2"]}}</td><td>Voi {{cj()!["p2"]}}</td>
+              </tr>
+              <tr>
+                <td>3rd</td><td>Lui/Lei {{cj()!["s3"]}}</td><td>Lei {{cj()!["p3"]}}</td>
+              </tr>
+              </tbody>
+            </table>
+          }
+          <p-button label="Next" (onClick)="getNextVerb()"></p-button>
+        </div>
+      </p-card>
     }
   </div>
   <div class="flex-auto"></div>
