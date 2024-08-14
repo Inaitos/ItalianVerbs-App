@@ -7,5 +7,6 @@ public interface IVerbsRepository
     public bool TryGetConjugation(string word, string group, out Conjugation[] con);
     public string[] GetRand(int top, int count);
     public int GetLength();
+    public string[] GetGroups();
 
 }

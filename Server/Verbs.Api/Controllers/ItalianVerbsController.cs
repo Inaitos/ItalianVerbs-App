@@ -46,7 +46,7 @@ public class ItalianVerbsController : ControllerBase
             return NotFound();
         }
 
-        var ret = conj.Select(l => new DtoConjugation(l.Value, l.Form)).ToArray();
+        var ret = conj.Select(l => new DtoConjugation(l.Form, l.Value)).ToArray();
         return ret;
     }
 
@@ -64,6 +64,13 @@ public class ItalianVerbsController : ControllerBase
     public int GetLength()
     {
         return _repository.GetLength();
+    }
+
+
+    [HttpGet("words/conjGroups", Name = "GetGroups")]
+    public string[] GetGroups()
+    {
+        return _repository.GetGroups();
     }
     
     

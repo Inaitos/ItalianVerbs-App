@@ -77,4 +77,12 @@ public class VerbsRepository : IVerbsRepository
     {
         return _definitions.Length;
     }
+
+    public string[] GetGroups()
+    {
+        return _definitions
+            .SelectMany(l => l.Conjugations.Select(r=> r.Group))
+            .DistinctBy(d=> d)
+            .ToArray();
+    }
 }
