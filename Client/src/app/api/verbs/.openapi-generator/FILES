@@ -10,6 +10,7 @@ index.ts
 model/conjugation.ts
 model/definition.ts
 model/dtoConjugation.ts
+model/dtoTranslation.ts
 model/models.ts
 param.ts
 variables.ts

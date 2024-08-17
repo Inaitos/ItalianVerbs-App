@@ -1,11 +1,9 @@
 import {Component, OnInit, signal} from '@angular/core';
 import {Store} from "@ngrx/store";
-import {VerbsApi} from "../../api/verbs-api";
 import {PanelModule} from "primeng/panel";
 import {Button} from "primeng/button";
 import {AppActions} from "../../state/app.state.actions";
-import {selectConj, selectVerbs, selectVerbsData} from "../../state/app.state.selectors";
-import {filter, map, withLatestFrom} from "rxjs";
+import {ObserveVerbsData} from "../../state/app.state.selectors";
 import {DialogService} from "primeng/dynamicdialog";
 import {WordinfodialogComponent} from "../../wordinfodialog/wordinfodialog.component";
 import {WordInfoDialogInitData} from "../../wordinfodialog/wordinfodialogdata";
@@ -30,18 +28,14 @@ export class TrainConjugationsComponent implements OnInit{
   private verbsTranslations?: Record<string, string[]>;
   private verbsConj?: Record<string, Record<string, string>>;
 
-  constructor(private store: Store, private api: VerbsApi, private dialogService: DialogService) {
+  constructor(private store: Store, private dialogService: DialogService) {
   }
 
   ngOnInit(): void {
     this.store.dispatch(AppActions.initIfEmpty());
-    this.store.select(selectVerbsData).pipe(
-      filter(v => v.verbs != null && v.verbsConj != null && v.verbsTranslations != null),
-      withLatestFrom(this.store.select(selectConj)),
-      map(([verbsData, conjCfg]) => ({verbs: verbsData.verbs!, conjGroup: conjCfg.group, conjGroups: conjCfg.group, verbsTran: verbsData.verbsTranslations, verbsConj: verbsData.verbsConj}))
-    ).subscribe(init => {
+    ObserveVerbsData(this.store).subscribe(init => {
       this.verbs = init.verbs;
-      this.verbsTranslations = init.verbsTran;
+      this.verbsTranslations = init.verbsTranslations;
       this.verbsConj = init.verbsConj;
       this.verbIndex = undefined;
       this.getNextVerb();

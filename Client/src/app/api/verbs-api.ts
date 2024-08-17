@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
-import {Observable, shareReplay} from "rxjs";
-import {Definition, DtoConjugation, ItalianVerbsService} from "./verbs";
+import {filter, map, Observable, shareReplay} from "rxjs";
+import {Definition, DtoConjugation, DtoTranslation, ItalianVerbsService} from "./verbs";
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +19,19 @@ export class VerbsApi {
 
   getWordConjugations(word: string, group: string): Observable<DtoConjugation[]> {
     return this.api.getConj(word, group);
+  }
+
+  private filterTranslation(t: DtoTranslation): boolean {
+    switch (t.translation)  {
+      case "Extended meanings":
+      case "Figurative meanings":
+        return false;
+    }
+    return true;
+  }
+
+  getWordTranslations(word: string): Observable<DtoTranslation[]> {
+    return this.api.getTranslation(word).pipe(map(tt => tt.filter(t => this.filterTranslation(t))));
   }
 
   getWordsBatch(topCount: number, batchSize: number): Observable<string[]>{

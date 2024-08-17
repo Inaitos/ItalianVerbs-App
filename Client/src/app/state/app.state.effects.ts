@@ -6,7 +6,6 @@ import {filter, forkJoin, map, switchMap, tap, withLatestFrom} from "rxjs";
 import {Store} from "@ngrx/store";
 import {selectBatchSettings, selectConj, selectVerbs} from "./app.state.selectors";
 import {DtoConjugation} from "../api/verbs";
-import {removeFirstBrackets} from "../utils/string-helpers";
 
 @Injectable()
 export class AppStateEffects {
@@ -51,7 +50,7 @@ export class AppStateEffects {
           cfg.verbs.map(v => this.api.getWordConjugations(v, cfg.conjGroup).pipe(map(c => ({verb: v, conjugations: c}))))
         ),
         forkJoin(
-          cfg.verbs.map(v => this.api.getWordInfo(v).pipe(map(def => ({verb: v, trans: def.definitions?.filter(t => this.filterTranslation(t)) ?? []}))))
+          cfg.verbs.map(v => this.api.getWordTranslations(v).pipe(map(tt => ({verb: v, trans: tt}))))
         ),
       ])
     ),
@@ -60,7 +59,7 @@ export class AppStateEffects {
         verbs: resultConj.map(v => v.verb),
         conj: resultConj.reduce<Record<string, Record<string, string>>>(
           (map, el) => {map[el.verb] = this.toConjugationsDct(el.conjugations); return map; },{}),
-        trans: resultTrans.reduce<Record<string, string[]>>((map, el) => {map[el.verb] = el.trans.map(a => removeFirstBrackets(a)); return map;}, {})
+        trans: resultTrans.reduce<Record<string, string[]>>((map, el) => {map[el.verb] = el.trans.map(a => a.translation!); return map;}, {})
       })
     ),
     map(a => AppActions.setVerbsData({verbsConj: a.conj, verbsTranslations: a.trans}))

@@ -1,16 +1,13 @@
-import {Component, OnInit, SecurityContext, signal} from '@angular/core';
+import {Component, OnInit, signal} from '@angular/core';
 import {Store} from "@ngrx/store";
-import {combineLatest, filter, first, forkJoin, map, switchMap, withLatestFrom} from "rxjs";
-import {selectConj, selectVerbs} from "../../state/app.state.selectors";
+import {ObserveVerbsData} from "../../state/app.state.selectors";
 import {AsyncPipe} from "@angular/common";
 import {AppActions} from "../../state/app.state.actions";
-import {DtoConjugation} from "../../api/verbs";
-import {VerbsApi} from "../../api/verbs-api";
 import {CardModule} from "primeng/card";
 import {Button} from "primeng/button";
 import {PanelModule} from "primeng/panel";
 import {DomSanitizer} from "@angular/platform-browser";
-import {adjustHtmlTranslation, removeFirstBrackets} from "../../utils/string-helpers";
+import {adjustHtmlTranslation} from "../../utils/string-helpers";
 
 @Component({
   selector: 'app-learn-verbs',
@@ -33,50 +30,19 @@ export class LearnVerbsComponent implements OnInit {
   protected cj = signal<Record<string, string>|undefined>(undefined);
   protected translations = signal<string[]|undefined>(undefined)
 
-  constructor(private store: Store, private api: VerbsApi, private sanitizer: DomSanitizer) {
+  constructor(private store: Store, private sanitizer: DomSanitizer) {
   }
 
   ngOnInit(): void {
     this.store.dispatch(AppActions.initIfEmpty());
-    this.store.select(selectVerbs)
-      .pipe(
-        filter(v => (v?.length ?? 0) > 0),
-        map(a => a!),
-        withLatestFrom(this.store.select(selectConj)),
-        map(a => ({verbs: a[0], conjGroup: a[1].group})),
-        switchMap(cfg =>
-          forkJoin(
-            [
-            forkJoin(
-              cfg.verbs.map(v => this.api.getWordConjugations(v, cfg.conjGroup).pipe(map(c => ({verb: v, conjugations: c}))))
-            ),
-            forkJoin(
-              cfg.verbs.map(v => this.api.getWordInfo(v).pipe(map(def => ({verb: v, trans: def.definitions?.filter(t => this.filterTranslation(t)) ?? []}))))
-            ),
-            ]
-          ),
-        ),
-        map(([resultConj, resultTrans]) =>
-            ({
-              verbs: resultConj.map(v => v.verb),
-              conj: resultConj.reduce<Record<string, Record<string, string>>>(
-                (map, el) => {map[el.verb] = this.toConjugationsDct(el.conjugations); return map; },{}),
-              trans: resultTrans.reduce<Record<string, string[]>>((map, el) => {map[el.verb] = el.trans.map(a => removeFirstBrackets(a)); return map;}, {})
-            })
-        )
-      ).subscribe(r => {
-        this.verbs = r.verbs;
-        this.verbsConj = r.conj;
-        this.verbsTranslations = r.trans;
+    ObserveVerbsData(this.store)
+      .subscribe(init => {
+        this.verbs = init.verbs;
+        this.verbsConj = init.verbsConj;
+        this.verbsTranslations = init.verbsTranslations;
         this.index = undefined;
         this.getNextVerb();
-        console.log('Loaded', this.verbs, this.verbsConj);
       });
-  }
-
-  toConjugationsDct(conj: DtoConjugation[]): Record<string, string> {
-    const ret = conj.reduce<Record<string, string>>( (map, el) => {map[el.form!] = el.shortValue!; return map;}, {});
-    return ret;
   }
 
   getNextVerb() {
@@ -100,16 +66,6 @@ export class LearnVerbsComponent implements OnInit {
 
   get dataReady() {
     return this.verbs != null;
-  }
-
-
-  private filterTranslation(t: string): boolean {
-    switch (t)  {
-      case "Extended meanings":
-      case "Figurative meanings":
-        return false;
-    }
-    return true;
   }
 }
 

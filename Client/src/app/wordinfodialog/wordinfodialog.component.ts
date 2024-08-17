@@ -1,15 +1,15 @@
-import {Component, OnInit, SecurityContext, signal} from '@angular/core';
-import {DynamicDialogConfig, DynamicDialogRef} from "primeng/dynamicdialog";
+import {Component, OnInit, signal} from '@angular/core';
+import {DynamicDialogConfig} from "primeng/dynamicdialog";
 import {WordInfoDialogInitData} from "./wordinfodialogdata";
 import {NgForOf} from "@angular/common";
 import {PanelModule} from "primeng/panel";
 import {CardModule} from "primeng/card";
 import {DomSanitizer} from "@angular/platform-browser";
 import {VerbsApi} from "../api/verbs-api";
-import {map, switchMap, withLatestFrom, zip} from "rxjs";
+import {map, switchMap, zip} from "rxjs";
 import {Store} from "@ngrx/store";
-import {selectConj, selectVerbs} from "../state/app.state.selectors";
-import {adjustHtmlTranslation, removeFirstBrackets} from "../utils/string-helpers";
+import {selectConj} from "../state/app.state.selectors";
+import {adjustHtmlTranslation} from "../utils/string-helpers";
 import {DtoConjugation} from "../api/verbs";
 
 @Component({
@@ -28,8 +28,7 @@ export class WordinfodialogComponent implements OnInit{
   protected translations = signal<string[]|undefined>(undefined)
   protected verb: string;
 
-  constructor(private ref: DynamicDialogRef,
-              config: DynamicDialogConfig,
+  constructor(config: DynamicDialogConfig,
               private sanitizer: DomSanitizer,
               private api: VerbsApi,
               private store: Store
@@ -42,22 +41,24 @@ export class WordinfodialogComponent implements OnInit{
     this.store.select(selectConj).pipe(
       switchMap(conjCfg =>
         zip(
-          this.api.getWordInfo(this.verb),
+          this.api.getWordTranslations(this.verb),
           this.api.getWordConjugations(this.verb, conjCfg.group)
         ).pipe(
-          map(wordData => ({translations: wordData[0].definitions, conjugations: wordData[1]}))
+          map(wordData => ({translations: wordData[0], conjugations: wordData[1]}))
         )
       )
     ).subscribe(data => {
       console.log("Data ready", data);
-      this.translations.set(data.translations?.map(t => removeFirstBrackets(adjustHtmlTranslation(this.sanitizer, t))) ?? []);
+      this.translations.set(data.translations?.map(t => adjustHtmlTranslation(this.sanitizer, t.translation!)) ?? []);
       const conj = this.toConjugationsDct(data.conjugations);
       this.cj.set(conj);
     });
   }
 
   toConjugationsDct(conj: DtoConjugation[]): Record<string, string> {
-    const ret = conj.reduce<Record<string, string>>( (map, el) => {map[el.form!] = el.shortValue!; return map;}, {});
-    return ret;
+    return conj.reduce<Record<string, string>>((map, el) => {
+      map[el.form!] = el.shortValue!;
+      return map;
+    }, {});
   }
 }
