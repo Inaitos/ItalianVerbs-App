@@ -1,4 +1,4 @@
-import {Component, OnInit, signal} from '@angular/core';
+import {Component, OnInit, signal, ViewChild, ViewContainerRef} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {PanelModule} from "primeng/panel";
 import {Button} from "primeng/button";
@@ -7,6 +7,8 @@ import {ObserveVerbsData} from "../../state/app.state.selectors";
 import {DialogService} from "primeng/dynamicdialog";
 import {WordinfodialogComponent} from "../../wordinfodialog/wordinfodialog.component";
 import {WordInfoDialogInitData} from "../../wordinfodialog/wordinfodialogdata";
+import {GuessConjugationComponent} from "./guess-conjugation/guess-conjugation.component";
+import {GuessPersonComponent} from "./guess-person/guess-person.component";
 
 @Component({
   selector: 'app-train-conjugations',
@@ -27,6 +29,8 @@ export class TrainConjugationsComponent implements OnInit{
   private verbIndex?: number = undefined;
   private verbsTranslations?: Record<string, string[]>;
   private verbsConj?: Record<string, Record<string, string>>;
+  @ViewChild('guessComponent', {read: ViewContainerRef})
+  public guessComponent!: ViewContainerRef;
 
   constructor(private store: Store, private dialogService: DialogService) {
   }
@@ -54,6 +58,23 @@ export class TrainConjugationsComponent implements OnInit{
 
     const conj = this.verbsConj?.[verb];
     this.conj.set(conj);
+
+    const viewForm = this;
+    const view: ViewContainerRef = viewForm.guessComponent;
+
+    view.clear();
+    const component =
+      this.getRandomInt(2) == 0
+        ? view.createComponent(GuessConjugationComponent)
+        : view.createComponent(GuessPersonComponent);
+
+    const randomPerson = `${this.getRandomInt(2) == 0 ? "s" : "p"}${this.getRandomInt(3)+1}`;
+    component.setInput("person", randomPerson);
+    component.setInput("verb", conj?.[randomPerson]);
+  }
+
+  getRandomInt(max: number): number {
+    return Math.floor(Math.random() * max);
   }
 
   get verbIndexText(): string {

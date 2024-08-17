@@ -1,0 +1,11 @@
+<div class="flex align-items-center">
+  @if (answerVisible()) {
+    <div class="word text-xl">{{Person}}</div>
+  }
+  @else {
+    <div class="word text-xl">???</div>
+  }
+  <div class="word text-xl">{{Verb}}</div>
+  <p-button class="ml-auto" label="Show" (onClick)="showAnswer();showButton.disabled = true;" #showButton></p-button>
+</div>
+
