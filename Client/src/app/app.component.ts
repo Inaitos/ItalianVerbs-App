@@ -21,7 +21,7 @@ import {WordinfodialogComponent} from "./wordinfodialog/wordinfodialog.component
 import {WordInfoDialogInitData} from "./wordinfodialog/wordinfodialogdata";
 import {DtoConjugation} from "./api/verbs";
 import {Store} from "@ngrx/store";
-import {selectTopCount} from "./state/app.state.selectors";
+import {selectBatchSettings, selectTopCount} from "./state/app.state.selectors";
 import {AppActions} from "./state/app.state.actions";
 
 @Component({
@@ -54,7 +54,7 @@ export class AppComponent {
       items: [
         {
           label: 'Conjugation',
-          routerLink: 'train-conjugation'
+          routerLink: 'train-conjugations'
         }
       ]
     }
@@ -66,13 +66,14 @@ export class AppComponent {
   ];
 
   protected topCount = signal(100);
-  protected count: number = 20;
+  protected batchSize: Observable<number>;
 
   constructor(
     private api: VerbsApi,
     private dialogService: DialogService,
     private store: Store
   ) {
+    this.batchSize = this.store.select(selectBatchSettings).pipe(map(bs => bs.batch))
     const searchWords$= toObservable(this.searchWord)
       .pipe(
         debounceTime(1000),
