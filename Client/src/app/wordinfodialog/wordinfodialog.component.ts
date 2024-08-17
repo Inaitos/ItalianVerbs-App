@@ -1,11 +1,16 @@
-import {Component, SecurityContext} from '@angular/core';
+import {Component, OnInit, SecurityContext, signal} from '@angular/core';
 import {DynamicDialogConfig, DynamicDialogRef} from "primeng/dynamicdialog";
-import {Definition, DtoConjugation} from "../api/verbs";
 import {WordInfoDialogInitData} from "./wordinfodialogdata";
 import {NgForOf} from "@angular/common";
 import {PanelModule} from "primeng/panel";
 import {CardModule} from "primeng/card";
 import {DomSanitizer} from "@angular/platform-browser";
+import {VerbsApi} from "../api/verbs-api";
+import {map, switchMap, withLatestFrom, zip} from "rxjs";
+import {Store} from "@ngrx/store";
+import {selectConj, selectVerbs} from "../state/app.state.selectors";
+import {adjustHtmlTranslation, removeFirstBrackets} from "../utils/string-helpers";
+import {DtoConjugation} from "../api/verbs";
 
 @Component({
   selector: 'app-wordinfodialog',
@@ -18,44 +23,41 @@ import {DomSanitizer} from "@angular/platform-browser";
   templateUrl: './wordinfodialog.component.html',
   styleUrl: './wordinfodialog.component.scss'
 })
-export class WordinfodialogComponent {
-  private definition: Definition;
-  private group = "indicative/present";
-  private conjugations: Record<string, DtoConjugation[]>;
+export class WordinfodialogComponent implements OnInit{
+  protected cj = signal<Record<string, string>|undefined>(undefined);
+  protected translations = signal<string[]|undefined>(undefined)
+  protected verb: string;
+
   constructor(private ref: DynamicDialogRef,
               config: DynamicDialogConfig,
-              private sanitizer: DomSanitizer
+              private sanitizer: DomSanitizer,
+              private api: VerbsApi,
+              private store: Store
               ) {
     const initData = <WordInfoDialogInitData>config.data;
-    this.definition = initData.definition;
-    this.conjugations = initData.conjugations;
+    this.verb = initData.verb;
   }
 
-  get Translations(): string[] {
-    return this.definition.definitions?.map(d => d.replace("\n", "<br>")) ?? [];
+  ngOnInit(): void {
+    this.store.select(selectConj).pipe(
+      switchMap(conjCfg =>
+        zip(
+          this.api.getWordInfo(this.verb),
+          this.api.getWordConjugations(this.verb, conjCfg.group)
+        ).pipe(
+          map(wordData => ({translations: wordData[0].definitions, conjugations: wordData[1]}))
+        )
+      )
+    ).subscribe(data => {
+      console.log("Data ready", data);
+      this.translations.set(data.translations?.map(t => removeFirstBrackets(adjustHtmlTranslation(this.sanitizer, t))) ?? []);
+      const conj = this.toConjugationsDct(data.conjugations);
+      this.cj.set(conj);
+    });
   }
 
-  get TranslationHtmls(): string[] {
-    return this.definition.definitions?.map(d => this.sanitizer.sanitize(SecurityContext.HTML, d.replace("\n", "<br>"))).filter(d => !!d).map(d => d!) ?? [];
-  }
-
-
-  get ConjGroup() {
-    return this.group;
-  }
-
-  get ConjAvailable() {
-    return !!this.conjugations[this.ConjGroup];
-  }
-
-  Conj(person: number, number: number) {
-    const conj = this.conjugations[this.ConjGroup];
-    if (!conj) {
-      return undefined;
-    }
-    let form = (number == 1 ? "s" : "p") + person.toString();
-    const ret = conj.find(c => c.form == form)?.shortValue;
-    console.log(`Conj ${person}/${number}: ${form} = ${ret}`)
+  toConjugationsDct(conj: DtoConjugation[]): Record<string, string> {
+    const ret = conj.reduce<Record<string, string>>( (map, el) => {map[el.form!] = el.shortValue!; return map;}, {});
     return ret;
   }
 }

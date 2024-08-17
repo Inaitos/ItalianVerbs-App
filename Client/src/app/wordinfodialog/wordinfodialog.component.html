@@ -1,21 +1,27 @@
-@for(translationHtml of TranslationHtmls; track translationHtml) {
-  <p-card styleClass="mb-2">
-    <div [innerHTML]="translationHtml"></div>
-  </p-card>
-}
-<table>
-  <thead>
-    <th>Person</th>
+@if (cj() != undefined) {
+  <table class="conj-table">
+    <thead>
+    <th>Form</th>
     <th>Singular</th>
     <th>Plural</th>
-  </thead>
-  <tr>
-    <td>1</td><td>Io {{Conj(1, 1)}}</td><td>Noi {{Conj(1, 99)}}</td>
-  </tr>
-  <tr>
-    <td>2</td><td>Tu {{Conj(2, 1)}}</td><td>Voi {{Conj(2, 99)}}</td>
-  </tr>
-  <tr>
-    <td>3</td><td>Lui/Lei {{Conj(3, 1)}}</td><td>Loro {{Conj(3, 99)}}</td>
-  </tr>
-</table>
+    </thead>
+    <tbody>
+    <tr>
+      <td>1st</td><td>Io {{cj()!["s1"]}}</td><td>Noi {{cj()!["p1"]}}</td>
+    </tr>
+    <tr>
+      <td>2nd</td><td>Tu {{cj()!["s2"]}}</td><td>Voi {{cj()!["p2"]}}</td>
+    </tr>
+    <tr>
+      <td>3rd</td><td>Lui/Lei {{cj()!["s3"]}}</td><td>Lei {{cj()!["p3"]}}</td>
+    </tr>
+    </tbody>
+  </table>
+}
+@if (translations()) {
+  <div class="translations-list mt-2">
+    @for(translation of translations(); track translation) {
+      <div class="translation text-xs mb-1" [innerHTML]="translation"></div>
+    }
+  </div>
+}

@@ -11,7 +11,7 @@
         <div style="max-height: 300px; width: 200px; overflow-y: auto;">
           <table>
             <tr *ngFor="let w of searchWords()">
-              <td><a (click)="openWordInfoDialog(w)">{{w}}</a></td>
+              <td class="found-word"><a (click)="openWordInfoDialog(w)">{{w}}</a></td>
             </tr>
           </table>
         </div>

@@ -10,6 +10,7 @@ import {CardModule} from "primeng/card";
 import {Button} from "primeng/button";
 import {PanelModule} from "primeng/panel";
 import {DomSanitizer} from "@angular/platform-browser";
+import {adjustHtmlTranslation, removeFirstBrackets} from "../../utils/string-helpers";
 
 @Component({
   selector: 'app-learn-verbs',
@@ -60,7 +61,7 @@ export class LearnVerbsComponent implements OnInit {
               verbs: resultConj.map(v => v.verb),
               conj: resultConj.reduce<Record<string, Record<string, string>>>(
                 (map, el) => {map[el.verb] = this.toConjugationsDct(el.conjugations); return map; },{}),
-              trans: resultTrans.reduce<Record<string, string[]>>((map, el) => {map[el.verb] = el.trans.map(a => this.removeFirstBrackets(a)); return map;}, {})
+              trans: resultTrans.reduce<Record<string, string[]>>((map, el) => {map[el.verb] = el.trans.map(a => removeFirstBrackets(a)); return map;}, {})
             })
         )
       ).subscribe(r => {
@@ -91,7 +92,7 @@ export class LearnVerbsComponent implements OnInit {
     const verb = this.verbs[this.index];
     this.currentVerb.set(verb);
     const conj = this.verbsConj![verb];
-    const trans = this.verbsTranslations![verb].map(t => this.adjustHtmlTranslation(t));
+    const trans = this.verbsTranslations![verb].map(t => adjustHtmlTranslation(this.sanitizer, t));
 
     this.cj.set(conj);
     this.translations.set(trans);
@@ -101,38 +102,6 @@ export class LearnVerbsComponent implements OnInit {
     return this.verbs != null;
   }
 
-  removeFirstBrackets(s: string): string {
-    if (!s) {
-      return '';
-    }
-    let bracket = 0;
-    for(let i=0;i<s.length;i++) {
-      switch (s[i]) {
-        case ' ':
-          continue;
-        case '(':
-          bracket++;
-          continue;
-        case ')':
-          if (bracket == 0) {
-            return s;
-          }
-          bracket--;
-          if (bracket > 0) {
-            continue;
-          }
-          i++;
-          break;
-        default:
-          if (bracket > 0) {
-            continue;
-          }
-          break;
-      }
-      return s.substring(i).trim();
-    }
-    return s;
-  }
 
   private filterTranslation(t: string): boolean {
     switch (t)  {
@@ -141,10 +110,6 @@ export class LearnVerbsComponent implements OnInit {
         return false;
     }
     return true;
-  }
-
-  private adjustHtmlTranslation(t: string): string {
-    return this.sanitizer.sanitize(SecurityContext.HTML, t.replace("\n", "<br>")) ?? '';
   }
 }
 

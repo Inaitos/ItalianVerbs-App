@@ -100,30 +100,13 @@ export class AppComponent {
   }
 
   openWordInfoDialog(w: string) {
-    const conjGroups = ["indicative/present"];
-    forkJoin([
-        this.api.getWordInfo(w),
-        forkJoin(conjGroups.map(c => this.api.getWordConjugations(w, c).pipe(map(cd => ({group: c, conjugations: cd}))))),
-      ]
-    ).pipe(
-      switchMap(([def, conjugations]) => {
-        const reduced = conjugations.reduce<Record<string, DtoConjugation[]>>((map, el) => {
-          map[el.group] = el.conjugations;
-          return map;
-        },{});
-        const ref = this.dialogService.open(WordinfodialogComponent, {
-          data: <WordInfoDialogInitData>{
-            definition: def,
-            conjugations: reduced
-          },
-          header: def.word ?? '',
-          height: '80%',
-          width: '900px'
-        });
-        return ref.onClose;
-      })
-    ).subscribe(_ => {
+    const ref = this.dialogService.open(WordinfodialogComponent, {
+      data: <WordInfoDialogInitData>{
+        verb: w
+      },
+      header: w,
     });
+    ref.onClose.subscribe();
   }
 
   setTopCount(topCount: number) {

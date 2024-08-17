@@ -1,0 +1,20 @@
+.conj-table th {
+  width: 200px;
+  text-align: left;
+}
+
+.conj-table td {
+  text-align: left;
+}
+
+.translation {
+  color: var(--highlight-text-color);
+}
+
+.translations-list {
+  max-height: 400px;
+  max-width: 800px;
+  overflow: auto;
+  padding: 10px;
+  background: var(--highlight-bg);
+}
