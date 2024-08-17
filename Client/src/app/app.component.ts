@@ -89,7 +89,7 @@ export class AppComponent {
       this.wordsSelectionOptions = [
         { label: 'Top 100', value: 100 },
         { label: 'Top 1000', value: 1000 },
-        { label: `All (${num})`, value: -1 }
+        { label: `All (${num})`, value: 100000 }
       ];
     })
   }

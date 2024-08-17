@@ -1,4 +1,4 @@
-import {Component, OnInit, signal, ViewChild, ViewContainerRef} from '@angular/core';
+import {AfterViewInit, Component, signal, ViewChild, ViewContainerRef} from '@angular/core';
 import {Store} from "@ngrx/store";
 import {PanelModule} from "primeng/panel";
 import {Button} from "primeng/button";
@@ -20,7 +20,7 @@ import {GuessPersonComponent} from "./guess-person/guess-person.component";
   templateUrl: './train-conjugations.component.html',
   styleUrl: './train-conjugations.component.scss'
 })
-export class TrainConjugationsComponent implements OnInit{
+export class TrainConjugationsComponent implements AfterViewInit {
   protected currentVerb = signal<string|undefined>(undefined);
   protected translations = signal<string[]|undefined>(undefined);
   protected conj = signal<Record<string, string>|undefined>(undefined);
@@ -35,7 +35,7 @@ export class TrainConjugationsComponent implements OnInit{
   constructor(private store: Store, private dialogService: DialogService) {
   }
 
-  ngOnInit(): void {
+  ngAfterViewInit(): void {
     this.store.dispatch(AppActions.initIfEmpty());
     ObserveVerbsData(this.store).subscribe(init => {
       this.verbs = init.verbs;
