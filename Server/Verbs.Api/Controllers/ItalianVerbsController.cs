@@ -51,6 +51,21 @@ public class ItalianVerbsController : ControllerBase
     }
 
 
+    [HttpGet("words/{word}/translation", Name = "GetTranslation")]
+    public ActionResult<DtoTranslation[]> GetTranslation(string word)
+    {
+        if (!_repository.TryGetWordDef(word, out var def))
+        {
+            return NotFound();
+        }
+
+        var ret = def.Definitions
+                                .Select(l => new DtoTranslation(l))
+                                .ToArray();
+        return ret;
+    }
+
+
     [HttpGet("random/{top}/{count}", Name = "GetRandom")]
 
     public string[] GetRandom(int top, int count)

@@ -8,5 +8,4 @@ public interface IVerbsRepository
     public string[] GetRand(int top, int count);
     public int GetLength();
     public string[] GetGroups();
-
 }
