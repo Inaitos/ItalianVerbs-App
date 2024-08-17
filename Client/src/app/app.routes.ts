@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
-import {LearnConjugationComponent} from "./components/learn-conjugation/learn-conjugation.component";
+import {LearnVerbsComponent} from "./components/learn-verbs/learn-verbs.component";
 
 export const routes: Routes = [
-  {path: 'learn-conjugation', component: LearnConjugationComponent }
+  {path: 'learn-verbs', component: LearnVerbsComponent }
 ];

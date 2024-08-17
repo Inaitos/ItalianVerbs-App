@@ -2,7 +2,13 @@
   <div class="flex-auto"></div>
   <div class="content-div bg-primary p-3">
     @if(dataReady) {
-      <p-card [header]="currentVerb()">
+      <p-panel [toggleable]="false">
+        <ng-template pTemplate="header">
+          <div class="flex align-items-center" style="width: 100%">
+            <p class="text-2xl font-bold m-0">{{currentVerb()}}</p>
+            <p-button class="ml-auto" label="Next" (onClick)="getNextVerb()"></p-button>
+          </div>
+        </ng-template>
         <div>
           @if (cj() != undefined) {
             <table class="conj-table">
@@ -24,9 +30,15 @@
               </tbody>
             </table>
           }
-          <p-button label="Next" (onClick)="getNextVerb()"></p-button>
+          @if (translations()) {
+            <div class="translations-list mt-2">
+              @for(translation of translations(); track translation) {
+                <div class="translation text-xs mb-1" [innerHTML]="translation"></div>
+              }
+            </div>
+          }
         </div>
-      </p-card>
+      </p-panel>
     }
   </div>
   <div class="flex-auto"></div>

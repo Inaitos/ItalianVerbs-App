@@ -41,11 +41,20 @@ export class AppComponent {
 
   protected menuItems: MenuItem[] = [
     {
-      label: "Conjugation",
+      label: 'Learn',
       items: [
         {
-          label: 'Repeat',
-          routerLink: 'learn-conjugation'
+          label: 'Verbs',
+          routerLink: 'learn-verbs'
+        }
+      ]
+    },
+    {
+      label: "Train",
+      items: [
+        {
+          label: 'Conjugation',
+          routerLink: 'train-conjugation'
         }
       ]
     }
@@ -57,6 +66,7 @@ export class AppComponent {
   ];
 
   protected topCount = signal(100);
+  protected count: number = 20;
 
   constructor(
     private api: VerbsApi,
