@@ -78,7 +78,7 @@ export class AppComponent {
       .pipe(
         debounceTime(1000),
         tap(s => console.log('init search', s)),
-        switchMap(s => !!s ? api.getWordsFromApi(s) : of([])),
+        switchMap(s => !!s && s.length >= 3 ? api.getWordsFromApi(s) : of([])),
         tap(r => console.log('search result', r)),
       );
     this.searchWords = toSignal(searchWords$);
@@ -116,5 +116,11 @@ export class AppComponent {
 
   reloadWords() {
     this.store.dispatch(AppActions.loadNextBatch());
+  }
+
+  onSearchFocus(searchWordPanel: OverlayPanel, searchInput: HTMLInputElement) {
+    if (!searchWordPanel.overlayVisible && !!this.searchWord) {
+      searchWordPanel.toggle(null, searchInput);
+    }
   }
 }

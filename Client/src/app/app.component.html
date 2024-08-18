@@ -6,7 +6,11 @@
   <div style="width:300px" class="m-2">
     <p-inputGroup>
       <p-inputGroupAddon><i class="pi pi-search"></i></p-inputGroupAddon>
-      <input #searchInput pInputText placeholder="Search: andare" [(ngModel)]="searchWord" (ngModelChange)="onSearchTextChanged(searchWordPanel, searchInput)">
+      <input #searchInput pInputText placeholder="Search (min. 3 letters)"
+             [(ngModel)]="searchWord"
+             (ngModelChange)="onSearchTextChanged(searchWordPanel, searchInput)"
+             (focusin)="onSearchFocus(searchWordPanel, searchInput)"
+      >
       <p-overlayPanel #searchWordPanel [focusOnShow]="false">
         <div style="max-height: 300px; width: 200px; overflow-y: auto;">
           <table>
